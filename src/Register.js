@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { auth } from './firebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import './Register.css';
@@ -8,6 +9,7 @@ const Register = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     const handleRegister = async (e) => {
         e.preventDefault();
@@ -15,7 +17,7 @@ const Register = () => {
 
         try {
             await createUserWithEmailAndPassword(auth, email, password);
-            alert('User registered successfully!');
+            navigate('/dashboard'); // Redirect to dashboard on successful registration
         } catch (error) {
             setError(error.message);
         }
