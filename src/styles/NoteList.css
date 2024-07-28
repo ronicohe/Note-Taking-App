@@ -1,0 +1,66 @@
+.notes-list {
+    margin-top: 20px;
+}
+
+.categories {
+    margin-bottom: 10px;
+}
+
+.categories button {
+    margin-right: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    border: 2px solid #027985 !important;
+    color: black !important;
+    border-radius: 5px;
+}
+
+.notes-list ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.notes-list li {
+    word-break: break-word;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+.notes-list h3 {
+    margin: 0;
+}
+
+.notes-list p {
+    margin: 5px 0;
+}
+
+.notes-list button {
+    margin: 0 2px 0 7px;
+    padding: 5px 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+}
+
+.notes-list .edit-button {
+    background-color: #a2a2a2;
+}
+
+.notes-list .delete-button {
+    background-color: #DC3545;
+}
+
+.note-list-category-title {
+    background-color: #02798536;
+    padding: 7px;
+    border-radius: 5px;
+    color: #fff;
+}
+
+.note-content {
+    margin: 15px 7px;
+}

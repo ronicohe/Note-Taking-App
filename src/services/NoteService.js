@@ -1,9 +1,9 @@
-import { db } from './firebaseConfig';
+import { db } from '../config/firebaseConfig';
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, where, serverTimestamp } from 'firebase/firestore';
 
 const notesCollectionRef = collection(db, 'notes');
 
-export const addNote = async (title, content, userId) => {
+export const addNote = async (title, content, userId, category) => {
     try {
         const docRef = await addDoc(notesCollectionRef, {
             title,
@@ -11,6 +11,7 @@ export const addNote = async (title, content, userId) => {
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
             userId,
+            category
         });
         return docRef.id;
     } catch (error) {
@@ -19,13 +20,14 @@ export const addNote = async (title, content, userId) => {
     }
 };
 
-export const updateNote = async (noteId, title, content) => {
+export const updateNote = async (noteId, title, content, category) => {
     try {
         const noteRef = doc(db, 'notes', noteId);
         await updateDoc(noteRef, {
             title,
             content,
             updatedAt: serverTimestamp(),
+            category
         });
     } catch (error) {
         console.error("Error updating note: ", error);
@@ -54,6 +56,21 @@ export const fetchNotesByUser = async (userId) => {
         return notes;
     } catch (error) {
         console.error("Error fetching notes: ", error);
+        throw error;
+    }
+};
+
+export const fetchNotesByCategory = async (userId, category) => {
+    try {
+        const q = query(notesCollectionRef, where("userId", "==", userId), where("category", "==", category));
+        const querySnapshot = await getDocs(q);
+        const notes = [];
+        querySnapshot.forEach((doc) => {
+            notes.push({ id: doc.id, ...doc.data() });
+        });
+        return notes;
+    } catch (error) {
+        console.error("Error fetching notes by category: ", error);
         throw error;
     }
 };
