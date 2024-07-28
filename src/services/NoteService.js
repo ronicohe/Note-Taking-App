@@ -1,9 +1,9 @@
 import { db } from '../config/firebaseConfig';
-import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, where, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, where, serverTimestamp, onSnapshot } from 'firebase/firestore';
 
 const notesCollectionRef = collection(db, 'notes');
 
-export const addNote = async (title, content, userId, category) => {
+export const addNote = async (title, content, userId, category, sharedWith) => {
     try {
         const docRef = await addDoc(notesCollectionRef, {
             title,
@@ -11,7 +11,8 @@ export const addNote = async (title, content, userId, category) => {
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
             userId,
-            category
+            category,
+            sharedWith
         });
         return docRef.id;
     } catch (error) {
@@ -20,14 +21,15 @@ export const addNote = async (title, content, userId, category) => {
     }
 };
 
-export const updateNote = async (noteId, title, content, category) => {
+export const updateNote = async (noteId, title, content, category, sharedWith) => {
     try {
         const noteRef = doc(db, 'notes', noteId);
         await updateDoc(noteRef, {
             title,
             content,
             updatedAt: serverTimestamp(),
-            category
+            category,
+            sharedWith
         });
     } catch (error) {
         console.error("Error updating note: ", error);
@@ -73,4 +75,26 @@ export const fetchNotesByCategory = async (userId, category) => {
         console.error("Error fetching notes by category: ", error);
         throw error;
     }
+};
+
+export const subscribeToNotesByUser = (userId, callback) => {
+    const q = query(notesCollectionRef, where("userId", "==", userId));
+    return onSnapshot(q, (querySnapshot) => {
+        const notes = [];
+        querySnapshot.forEach((doc) => {
+            notes.push({ id: doc.id, ...doc.data() });
+        });
+        callback(notes);
+    });
+};
+
+export const subscribeToSharedNotes = (userEmail, callback) => {
+    const q = query(notesCollectionRef, where("sharedWith", "array-contains", userEmail));
+    return onSnapshot(q, (querySnapshot) => {
+        const notes = [];
+        querySnapshot.forEach((doc) => {
+            notes.push({ id: doc.id, ...doc.data() });
+        });
+        callback(notes);
+    });
 };

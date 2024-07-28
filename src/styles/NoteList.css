@@ -64,3 +64,8 @@
 .note-content {
     margin: 15px 7px;
 }
+
+.note-list-shared-with {
+    font-size: 14px;
+    padding: 10px 7px;
+}

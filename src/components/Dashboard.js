@@ -4,9 +4,9 @@ import NotesList from './NotesList';
 import { useAuth } from '../context/AuthContext';
 import { auth } from '../config/firebaseConfig';
 import { signOut } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
-import { fetchNotesByUser } from '../services/NoteService';
+import { subscribeToNotesByUser, subscribeToSharedNotes } from '../services/NoteService';
 import '../styles/Dashboard.css';
+import {useNavigate} from "react-router-dom";
 
 const Dashboard = () => {
     const { currentUser } = useAuth();
@@ -15,13 +15,25 @@ const Dashboard = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const loadNotes = async () => {
-            const fetchedNotes = await fetchNotesByUser(currentUser.uid);
-            setNotes(fetchedNotes);
-        };
+        const unsubscribeFromUserNotes = subscribeToNotesByUser(currentUser.uid, (userNotes) => {
+            setNotes((prevNotes) => {
+                const nonSharedNotes = prevNotes.filter(note => note.userId !== currentUser.uid);
+                return [...userNotes, ...nonSharedNotes];
+            });
+        });
 
-        loadNotes();
-    }, [currentUser.uid]);
+        const unsubscribeFromSharedNotes = subscribeToSharedNotes(currentUser.email, (sharedNotes) => {
+            setNotes((prevNotes) => {
+                const userNotes = prevNotes.filter(note => note.userId === currentUser.uid);
+                return [...userNotes, ...sharedNotes];
+            });
+        });
+
+        return () => {
+            unsubscribeFromUserNotes();
+            unsubscribeFromSharedNotes();
+        };
+    }, [currentUser.uid, currentUser.email]);
 
     const handleLogout = async () => {
         await signOut(auth);
@@ -39,7 +51,7 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard-container">
-            <h2 className="dashboard-header">All Notes</h2>
+            <h2 className="dashboard-header">Add A Note</h2>
             <button className="logout-button" onClick={handleLogout}>Logout</button>
             <NoteForm currentNote={currentNote} userId={currentUser.uid} onSave={handleSave} />
             <NotesList userId={currentUser.uid} notes={notes} setNotes={setNotes} onEdit={setCurrentNote} />
