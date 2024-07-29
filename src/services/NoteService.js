@@ -55,6 +55,13 @@ export const fetchNotesByUser = async (userId) => {
         querySnapshot.forEach((doc) => {
             notes.push({ id: doc.id, ...doc.data() });
         });
+
+        const sharedNotesQuery = query(notesCollectionRef, where("sharedWith", "array-contains", userId));
+        const sharedNotesSnapshot = await getDocs(sharedNotesQuery);
+        sharedNotesSnapshot.forEach((doc) => {
+            notes.push({ id: doc.id, ...doc.data() });
+        });
+
         return notes;
     } catch (error) {
         console.error("Error fetching notes: ", error);

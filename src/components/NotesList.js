@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from 'react';
-import {fetchNotesByUser, fetchNotesByCategory, deleteNote} from '../services/NoteService';
+import React, { useEffect, useState } from 'react';
+import { fetchNotesByUser, fetchNotesByCategory, deleteNote } from '../services/NoteService';
 import '../styles/NoteList.css';
 
-const NotesList = ({userId, notes, setNotes, onEdit}) => {
+const NotesList = ({ userId, notes, setNotes, onEdit }) => {
     const [filteredNotes, setFilteredNotes] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('');
 
@@ -25,12 +25,6 @@ const NotesList = ({userId, notes, setNotes, onEdit}) => {
         }
     };
 
-    const handleEdit = (note) => {
-        onEdit(note);
-        // Scroll to top
-        window.scrollTo({top: 0, behavior: 'smooth'});
-    };
-
     const uniqueCategories = [...new Set(notes.map(note => note.category))];
 
     return (
@@ -51,12 +45,11 @@ const NotesList = ({userId, notes, setNotes, onEdit}) => {
                         <div className="note-content">
                             <h3>{note.title}</h3>
                             <p>{note.content}</p>
+                            <p className="note-list-shared-with">
+                                <strong>Shared with:</strong> {note.sharedWith && note.sharedWith.length > 0 ? note.sharedWith.join(', ') : "no one"}
+                            </p>
                         </div>
-                        <p className="note-list-shared-with">
-                            <strong>Shared
-                                with:</strong> {note.sharedWith && note.sharedWith.length > 0 ? note.sharedWith.join(', ') : "no one"}
-                        </p>
-                        <button onClick={() => handleEdit(note)} className="edit-button">Edit</button>
+                        <button onClick={() => onEdit(note)} className="edit-button">Edit</button>
                         <button onClick={() => handleDelete(note.id)} className="delete-button">Delete</button>
                     </li>
                 ))}
