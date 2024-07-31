@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { addNote, updateNote } from '../services/NoteService';
+import { addNote, updateNote, fetchNoteVersions } from '../services/NoteService';
 import '../styles/NoteForm.css';
 
 const NoteForm = ({ currentNote, userId, onSave }) => {
@@ -8,6 +8,7 @@ const NoteForm = ({ currentNote, userId, onSave }) => {
     const [category, setCategory] = useState('');
     const [sharedWith, setSharedWith] = useState('');
     const [loading, setLoading] = useState(false);
+    const [versions, setVersions] = useState([]);
 
     useEffect(() => {
         if (currentNote) {
@@ -15,13 +16,28 @@ const NoteForm = ({ currentNote, userId, onSave }) => {
             setContent(currentNote.content);
             setCategory(currentNote.category || '');
             setSharedWith(currentNote.sharedWith ? currentNote.sharedWith.join(', ') : '');
+            fetchVersions(currentNote.id);
         } else {
-            setTitle('');
-            setContent('');
-            setCategory('');
-            setSharedWith('');
+            clearForm();
         }
     }, [currentNote]);
+
+    const fetchVersions = async (noteId) => {
+        try {
+            const noteVersions = await fetchNoteVersions(noteId);
+            setVersions(noteVersions);
+        } catch (error) {
+            console.error("Error fetching note versions: ", error);
+        }
+    };
+
+    const clearForm = () => {
+        setTitle('');
+        setContent('');
+        setCategory('');
+        setSharedWith('');
+        setVersions([]);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -31,16 +47,27 @@ const NoteForm = ({ currentNote, userId, onSave }) => {
             if (currentNote) {
                 await updateNote(currentNote.id, title, content, category, sharedWithArray);
                 onSave({ ...currentNote, title, content, category, sharedWith: sharedWithArray });
+                clearForm();
             } else {
                 const noteId = await addNote(title, content, userId, category, sharedWithArray);
                 onSave({ id: noteId, title, content, userId, createdAt: new Date(), category, sharedWith: sharedWithArray });
-                setTitle('');  // Clear the title field
-                setContent('');  // Clear the content field
-                setCategory('');  // Clear the category field
-                setSharedWith('');  // Clear the sharedWith field
+                clearForm();
             }
         } catch (error) {
             console.error("Error saving note: ", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleRevert = async (version) => {
+        setLoading(true);
+        try {
+            await updateNote(currentNote.id, version.title, version.content, version.category, version.sharedWith);
+            onSave({ ...currentNote, title: version.title, content: version.content, category: version.category, sharedWith: version.sharedWith });
+            clearForm();
+        } catch (error) {
+            console.error("Error reverting note: ", error);
         } finally {
             setLoading(false);
         }
@@ -88,6 +115,24 @@ const NoteForm = ({ currentNote, userId, onSave }) => {
                     {currentNote ? 'Update' : 'Add'} Note
                 </button>
             </form>
+
+            {versions.length > 0 && (
+                <div className="note-versions">
+                    <h3>Previous Versions</h3>
+                    <ul>
+                        {versions.map((version) => (
+                            <li key={version.id}>
+                                <strong>{version.createdAt.toDate().toLocaleString()}</strong>
+                                <p>{version.title}</p>
+                                <p>{version.content}</p>
+                                <p><strong>Category:</strong> {version.category}</p>
+                                <p><strong>Shared with:</strong> {version.sharedWith.join(', ')}</p>
+                                <button onClick={() => handleRevert(version)}>Revert</button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
         </>
     );
 };

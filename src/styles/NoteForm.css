@@ -2,37 +2,46 @@
     display: flex;
     flex-direction: column;
     margin: 20px;
+    padding: 20px;
+    background-color: #f4f4f4;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .note-form div {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 .note-form label {
     font-weight: bold;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
     display: block;
 }
 
 .note-form input[type="text"],
 .note-form textarea {
     width: 100%;
-    padding: 8px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
     box-sizing: border-box;
+    font-size: 14px;
 }
 
 .note-form button {
-    padding: 10px 15px;
+    padding: 12px 20px;
     background-color: #027985;
     color: white;
     border: none;
     cursor: pointer;
     border-radius: 5px;
     margin: 14px auto;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
 }
 
 .note-form button:hover {
-    background-color: #0279858f;
+    background-color: #026b74;
 }
 
 .spinner-overlay {
@@ -45,9 +54,90 @@
     justify-content: center;
     align-items: center;
     background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
 }
 
 .spinner {
     width: 50px;
     height: 50px;
+}
+
+.note-versions {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.note-versions h3 {
+    margin-top: 0;
+    text-align: center;
+    color: #333;
+}
+
+.note-versions ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.note-versions li {
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+    transition: background-color 0.3s ease;
+}
+
+.note-versions li:hover {
+    background-color: #f9f9f9;
+}
+
+.note-versions strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 16px;
+    color: #555;
+}
+
+.note-versions p {
+    margin: 6px 0;
+    color: #666;
+}
+
+.note-versions .category-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.note-versions .category-line p {
+    margin: 0;
+}
+
+.note-versions .note-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.note-versions .revert-button {
+    padding: 10px 15px;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-size: 14px;
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+.note-versions .revert-button:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+}
+
+.note-versions .revert-button:active {
+    background-color: #a93226;
+    transform: translateY(0);
 }

@@ -6,7 +6,7 @@ import { auth } from '../config/firebaseConfig';
 import { signOut } from 'firebase/auth';
 import { subscribeToNotesByUser, subscribeToSharedNotes } from '../services/NoteService';
 import '../styles/Dashboard.css';
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
     const { currentUser } = useAuth();
@@ -49,12 +49,17 @@ const Dashboard = () => {
         setCurrentNote(null);
     };
 
+    const handleEdit = (note) => {
+        setCurrentNote(note);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     return (
         <div className="dashboard-container">
             <h2 className="dashboard-header">Add A Note</h2>
             <button className="logout-button" onClick={handleLogout}>Logout</button>
             <NoteForm currentNote={currentNote} userId={currentUser.uid} onSave={handleSave} />
-            <NotesList userId={currentUser.uid} notes={notes} setNotes={setNotes} onEdit={setCurrentNote} />
+            <NotesList userId={currentUser.uid} notes={notes} setNotes={setNotes} onEdit={handleEdit} />
         </div>
     );
 };

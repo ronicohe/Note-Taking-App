@@ -17,7 +17,7 @@ const Register = () => {
 
         try {
             await createUserWithEmailAndPassword(auth, email, password);
-            navigate('/dashboard'); // Redirect to dashboard on successful registration
+            navigate('/dashboard');
         } catch (error) {
             setError(error.message);
         }

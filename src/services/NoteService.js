@@ -1,7 +1,8 @@
 import { db } from '../config/firebaseConfig';
-import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, where, serverTimestamp, onSnapshot } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, query, where, serverTimestamp, onSnapshot } from 'firebase/firestore';
 
 const notesCollectionRef = collection(db, 'notes');
+const noteVersionsCollectionRef = collection(db, 'noteVersions');
 
 export const addNote = async (title, content, userId, category, sharedWith) => {
     try {
@@ -14,6 +15,7 @@ export const addNote = async (title, content, userId, category, sharedWith) => {
             category,
             sharedWith
         });
+        await addNoteVersion(docRef.id, title, content, userId, category, sharedWith);
         return docRef.id;
     } catch (error) {
         console.error("Error adding note: ", error);
@@ -31,11 +33,46 @@ export const updateNote = async (noteId, title, content, category, sharedWith) =
             category,
             sharedWith
         });
+        const noteDoc = await getDoc(noteRef);
+        await addNoteVersion(noteId, title, content, noteDoc.data().userId, category, sharedWith);
     } catch (error) {
         console.error("Error updating note: ", error);
         throw error;
     }
 };
+
+export const addNoteVersion = async (noteId, title, content, userId, category, sharedWith) => {
+    try {
+        await addDoc(noteVersionsCollectionRef, {
+            noteId,
+            title,
+            content,
+            createdAt: serverTimestamp(),
+            userId,
+            category,
+            sharedWith
+        });
+    } catch (error) {
+        console.error("Error adding note version: ", error);
+        throw error;
+    }
+};
+
+export const fetchNoteVersions = async (noteId) => {
+    try {
+        const q = query(noteVersionsCollectionRef, where("noteId", "==", noteId));
+        const querySnapshot = await getDocs(q);
+        const versions = [];
+        querySnapshot.forEach((doc) => {
+            versions.push({ id: doc.id, ...doc.data() });
+        });
+        return versions;
+    } catch (error) {
+        console.error("Error fetching note versions: ", error);
+        throw error;
+    }
+};
+
 
 export const deleteNote = async (noteId) => {
     try {
